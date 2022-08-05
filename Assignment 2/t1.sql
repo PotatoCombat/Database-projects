@@ -1,0 +1,15 @@
+CREATE OR REPLACE FUNCTION new_shop_func2() RETURNS TRIGGER
+AS $$
+BEGIN
+	IF (NEW.id NOT IN (SELECT shop_id FROM sells)) THEN
+		RAISE EXCEPTION 'New shop added that does not sell at least 1 product';
+		RETURN NULL;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE CONSTRAINT TRIGGER new_shop2
+AFTER INSERT ON shop
+DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION new_shop_func2();
